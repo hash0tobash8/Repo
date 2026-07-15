@@ -5,8 +5,8 @@ local LOBBY_ID    = 138381251771774
 local DUNGEON_ID  = 124786371598438
 
 local difficulty  = getgenv().farmDifficulty  or "Easy"
-local autoHop     = getgenv().farmAutoHop     ~= false  -- default true
-local autoExecute = getgenv().farmAutoExecute ~= false  -- default true
+local autoHop     = getgenv().farmAutoHop     ~= false  
+local autoExecute = getgenv().farmAutoExecute ~= false  
 
 
 local function queueSelf()
@@ -50,6 +50,11 @@ if game.PlaceId == LOBBY_ID then
     queueSelf()
     task.wait(1.5)
 
+    
+    local lobbyChar = game.Players.LocalPlayer.Character
+    if not lobbyChar then lobbyChar = game.Players.LocalPlayer.CharacterAdded:Wait() end
+    local lobbyHRP = lobbyChar:WaitForChild("HumanoidRootPart", 10)
+
     local foundPortal = false
 
     for _, v in ipairs(workspace:GetChildren()) do
@@ -65,11 +70,10 @@ if game.PlaceId == LOBBY_ID then
 
             if isEmpty then
                 local touchPart = v:FindFirstChild("Touch")
-                if touchPart and touchPart:FindFirstChild("TouchInterest") then
+                if touchPart and touchPart:FindFirstChild("TouchInterest") and lobbyHRP then
                     foundPortal = true
 
-                   
-                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, touchPart, 0)
+                    firetouchinterest(lobbyHRP, touchPart, 0)
                     task.wait(0.3)  
                     pcall(function()
                         game.ReplicatedStorage.VerdantRemotes["VDT_Portal.CreateSetup"]:FireServer({
@@ -79,8 +83,7 @@ if game.PlaceId == LOBBY_ID then
                     end)
 
                     task.wait(0.1)
-                  
-                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, touchPart, 1)
+                    firetouchinterest(lobbyHRP, touchPart, 1)
                     break
                 end
             end
@@ -98,11 +101,17 @@ if game.PlaceId == LOBBY_ID then
 elseif game.PlaceId == DUNGEON_ID then
     queueSelf()
 
-    local lp   = game.Players.LocalPlayer
-    local char = lp.Character or lp.CharacterAdded:Wait()
+    local lp = game.Players.LocalPlayer
+ 
+    local char
+    for _ = 1, 60 do
+        char = lp.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then break end
+        task.wait(0.5)
+    end
+    if not char then return end 
     local root = char:WaitForChild("HumanoidRootPart", 10)
-
-    if not root then return end  
+    if not root then return end
 
     if not getgenv()._farmHookActive then
         getgenv()._farmHookActive = true
