@@ -109,9 +109,10 @@ elseif game.PlaceId == DUNGEON_ID then
         local nc; nc = hookmetamethod(game, "__namecall", function(self, ...)
             local method = getnamecallmethod()
             if method == "FireServer" and self.Name == "VDT_CutsceneReady" then
+                local args = {...}  
                 task.delay(0.1, function()
                     pcall(function()
-                        game.ReplicatedStorage.VerdantRemotes.VDT_CutsceneVoteSkip:FireServer(...)
+                        game.ReplicatedStorage.VerdantRemotes.VDT_CutsceneVoteSkip:FireServer(unpack(args))
                     end)
                 end)
             end
