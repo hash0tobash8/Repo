@@ -23,6 +23,14 @@ local function queueSelf()
     end
 end
 
+task.spawn(function()
+    local VirtualUser = game:GetService("VirtualUser")
+    lp.Idled:Connect(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
+end)
+
 local function serverHop()
     local TeleportService = game:GetService("TeleportService")
     local HttpService     = game:GetService("HttpService")
@@ -131,6 +139,7 @@ elseif game.PlaceId == DUNGEON_ID then
     end)
 
     task.wait(0.3)
+    task.wait(1)
 
     local chestFolder = workspace:FindFirstChild("Scripted")
         and workspace.Scripted:FindFirstChild("Chests")
