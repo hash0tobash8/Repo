@@ -67,7 +67,7 @@ if game.PlaceId == LOBBY_ID then
     if not char then char = lp.CharacterAdded:Wait() end
     local hrp = char:WaitForChild("HumanoidRootPart", 15)
 
-    while task.wait(2) do
+    while task.wait(10) do
         local foundPortal = false
 
         for _, v in ipairs(workspace:GetChildren()) do
