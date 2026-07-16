@@ -67,40 +67,42 @@ if game.PlaceId == LOBBY_ID then
     if not char then char = lp.CharacterAdded:Wait() end
     local hrp = char:WaitForChild("HumanoidRootPart", 15)
 
-    local foundPortal = false
+    while task.wait(5) do
+        local foundPortal = false
 
-    for _, v in ipairs(workspace:GetChildren()) do
-        if v.Name == "Portal" then
-            local container = v:FindFirstChild("Billboard")
-                and v.Billboard:FindFirstChild("Container")
-            local playerCount = container
-                and container:FindFirstChild("Player")
-                and container.Player:FindFirstChild("PlayerCount")
-            local isEmpty = playerCount and (playerCount.Text == "" or playerCount.Text == " " or playerCount.Text == "0")
+        for _, v in ipairs(workspace:GetChildren()) do
+            if v.Name == "Portal" then
+                local container = v:FindFirstChild("Billboard")
+                    and v.Billboard:FindFirstChild("Container")
+                local playerCount = container
+                    and container:FindFirstChild("Player")
+                    and container.Player:FindFirstChild("PlayerCount")
+                local isEmpty = playerCount and (playerCount.Text == "" or playerCount.Text == " " or playerCount.Text == "0")
 
-            if isEmpty then
-                local touchPart = v:FindFirstChild("Touch")
-                if touchPart and touchPart:FindFirstChild("TouchInterest") and hrp then
-                    foundPortal = true
-                    firetouchinterest(hrp, touchPart, 0)
-                    task.wait(0.3)
-                    pcall(function()
-                        game.ReplicatedStorage.VerdantRemotes["VDT_Portal.CreateSetup"]:FireServer({
-                            ["Difficulty"] = difficulty,
-                            ["MaxPlayers"] = 1
-                        })
-                    end)
-                    task.wait(0.1)
-                    firetouchinterest(hrp, touchPart, 1)
-                    break
+                if isEmpty then
+                    local touchPart = v:FindFirstChild("Touch")
+                    if touchPart and touchPart:FindFirstChild("TouchInterest") and hrp then
+                        foundPortal = true
+                        firetouchinterest(hrp, touchPart, 0)
+                        task.wait(0.3)
+                        pcall(function()
+                            game.ReplicatedStorage.VerdantRemotes["VDT_Portal.CreateSetup"]:FireServer({
+                                ["Difficulty"] = difficulty,
+                                ["MaxPlayers"] = 1
+                            })
+                        end)
+                        task.wait(0.1)
+                        firetouchinterest(hrp, touchPart, 1)
+                        break
+                    end
                 end
             end
         end
-    end
 
-    if not foundPortal then
-        if autoHop then
-            serverHop()
+        if not foundPortal then
+            if autoHop then
+                serverHop()
+            end
         end
     end
 
@@ -144,7 +146,7 @@ elseif game.PlaceId == DUNGEON_ID then
     end)
 
     task.wait(0.3)
-    
+    task.wait(1)
 
     local chestFolder = workspace:FindFirstChild("Scripted")
         and workspace.Scripted:FindFirstChild("Chests")
