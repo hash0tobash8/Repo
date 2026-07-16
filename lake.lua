@@ -17,7 +17,7 @@ getgenv().farmForceStopped = false
 local UserInputService = game:GetService("UserInputService")
 local forceStopConn
 forceStopConn = UserInputService.InputBegan:Connect(function(input, gpe)
-    if not gpe and input.KeyCode == Enum.KeyCode.H then
+    if input.KeyCode == Enum.KeyCode.H then
         getgenv().farmForceStopped = true
         pcall(function()
             game:GetService("StarterGui"):SetCore("SendNotification", {
@@ -65,6 +65,7 @@ local function serverHop()
     end)
     if ok and result and result.data then
         for _, server in ipairs(result.data) do
+            if getgenv().farmForceStopped then break end
             if server.playing < server.maxPlayers and server.id ~= game.JobId then
                 pcall(function()
                     TeleportService:TeleportToPlaceInstance(PlaceId, server.id, lp)
@@ -180,10 +181,17 @@ elseif game.PlaceId == DUNGEON_ID then
         end
     end)
 
+    local waterCheck = nil
+    for _ = 1, 8 do
+        waterCheck = workspace:FindFirstChild("Water") or game.ReplicatedStorage:FindFirstChild("Water")
+        if waterCheck or getgenv().farmForceStopped then break end
+        task.wait(1)
+    end
     
-    local waterCheck = workspace:WaitForChild("Water", 8)
-    if not waterCheck then
+    if not waterCheck and not getgenv().farmForceStopped then
         if autoHop then serverHop() end
+        return
+    elseif getgenv().farmForceStopped then
         return
     end
 
@@ -229,7 +237,7 @@ elseif game.PlaceId == DUNGEON_ID then
     
     task.wait(3)
 
-    if autoHop then
+    if autoHop and not getgenv().farmForceStopped then
         serverHop()
     end
 end
