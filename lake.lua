@@ -13,25 +13,8 @@ local Players = game:GetService("Players")
 local lp
 repeat task.wait(0.1) lp = Players.LocalPlayer until lp
 
-getgenv().farmForceStopped = false
-local UserInputService = game:GetService("UserInputService")
-local forceStopConn
-forceStopConn = UserInputService.InputBegan:Connect(function(input, gpe)
-    if input.KeyCode == Enum.KeyCode.H then
-        getgenv().farmForceStopped = true
-        pcall(function()
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Farm Stopped",
-                Text = "Force stopped farm. Hopping disabled.",
-                Duration = 5
-            })
-        end)
-        if forceStopConn then forceStopConn:Disconnect() end
-    end
-end)
-
 local function queueSelf()
-    if not autoExecute or getgenv().farmForceStopped then return end
+    if not autoExecute then return end
     local s = ('getgenv().farmDifficulty=%q;getgenv().farmAutoHop=%s;getgenv().farmAutoExecute=%s;loadstring(game:HttpGet("%s"))()'):format(
         tostring(difficulty),
         tostring(autoHop),
@@ -54,7 +37,6 @@ task.spawn(function()
 end)
 
 local function serverHop()
-    if getgenv().farmForceStopped then return end
     local TeleportService = game:GetService("TeleportService")
     local HttpService     = game:GetService("HttpService")
     local PlaceId         = game.PlaceId
@@ -65,7 +47,6 @@ local function serverHop()
     end)
     if ok and result and result.data then
         for _, server in ipairs(result.data) do
-            if getgenv().farmForceStopped then break end
             if server.playing < server.maxPlayers and server.id ~= game.JobId then
                 pcall(function()
                     TeleportService:TeleportToPlaceInstance(PlaceId, server.id, lp)
@@ -87,7 +68,6 @@ if game.PlaceId == LOBBY_ID then
     local hrp = char:WaitForChild("HumanoidRootPart", 15)
 
     while task.wait(1) do
-        if getgenv().farmForceStopped then break end
         local foundPortal = false
 
         for _, v in ipairs(workspace:GetChildren()) do
@@ -167,40 +147,21 @@ elseif game.PlaceId == DUNGEON_ID then
     end
 
     task.spawn(function()
-        local remotes = game.ReplicatedStorage:WaitForChild("VerdantRemotes", 5)
-        if remotes then
-            pcall(function() remotes.VDT_CharacterReady:FireServer() end)
-            pcall(function() remotes.VDT_CutsceneComplete:FireServer() end)
-        end
         while task.wait(1) do
-            if getgenv().farmForceStopped then break end
             pcall(function()
                 game.ReplicatedStorage.VerdantRemotes:WaitForChild("VDT_CutsceneSkip", 1):FireServer()
-                game.ReplicatedStorage.VerdantRemotes:WaitForChild("VDT_CutsceneVoteSkip", 1):FireServer()
             end)
         end
     end)
 
-    local waterCheck = nil
-    for _ = 1, 8 do
-        waterCheck = workspace:FindFirstChild("Water") or game.ReplicatedStorage:FindFirstChild("Water")
-        if waterCheck or getgenv().farmForceStopped then break end
-        task.wait(1)
-    end
-    
-    if not waterCheck and not getgenv().farmForceStopped then
-        if autoHop then serverHop() end
-        return
-    elseif getgenv().farmForceStopped then
-        return
-    end
+    task.wait(0.3)
+    task.wait(1)
 
     local chestFolder = workspace:FindFirstChild("Scripted")
         and workspace.Scripted:FindFirstChild("Chests")
 
     if chestFolder then
         for _, chest in ipairs(chestFolder:GetChildren()) do
-            if getgenv().farmForceStopped then break end
             pcall(function()
                 local prompt = nil
                 for _ = 1, 10 do
@@ -209,9 +170,9 @@ elseif game.PlaceId == DUNGEON_ID then
                     task.wait(0.2)
                 end
                 if prompt and prompt.Enabled then
-                local pivotCF = chest:IsA("Model") and chest:GetPivot() or chest.CFrame
-                root.CFrame = pivotCF + Vector3.new(0, 2, 0)
-                task.wait(0.15)
+                    local pivotCF = chest:IsA("Model") and chest:GetPivot() or chest.CFrame
+                    root.CFrame = pivotCF + Vector3.new(0, 2, 0)
+                    task.wait(0.15)
                     fireproximityprompt(prompt)
                     task.wait(0.2)
                 end
@@ -234,10 +195,10 @@ elseif game.PlaceId == DUNGEON_ID then
     pcall(function()
         game.ReplicatedStorage.VerdantRemotes.VDT_ReturnToLobby:FireServer()
     end)
-    
+
     task.wait(3)
 
-    if autoHop and not getgenv().farmForceStopped then
+    if autoHop then
         serverHop()
     end
 end
