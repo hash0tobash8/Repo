@@ -16,7 +16,7 @@ repeat task.wait(0.1) lp = Players.LocalPlayer until lp
 local function queueSelf()
     if not autoExecute then return end
     local s = ('getgenv().farmDifficulty=%q;getgenv().farmAutoHop=%s;getgenv().farmAutoExecute=%s;loadstring(game:HttpGet("%s"))()'):format(
-        difficulty,
+        tostring(difficulty),
         tostring(autoHop),
         tostring(autoExecute),
         SCRIPT_URL
