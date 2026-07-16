@@ -13,8 +13,25 @@ local Players = game:GetService("Players")
 local lp
 repeat task.wait(0.1) lp = Players.LocalPlayer until lp
 
+getgenv().farmForceStopped = false
+local UserInputService = game:GetService("UserInputService")
+local forceStopConn
+forceStopConn = UserInputService.InputBegan:Connect(function(input, gpe)
+    if not gpe and input.KeyCode == Enum.KeyCode.H then
+        getgenv().farmForceStopped = true
+        pcall(function()
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Farm Stopped",
+                Text = "Force stopped farm. Hopping disabled.",
+                Duration = 5
+            })
+        end)
+        if forceStopConn then forceStopConn:Disconnect() end
+    end
+end)
+
 local function queueSelf()
-    if not autoExecute then return end
+    if not autoExecute or getgenv().farmForceStopped then return end
     local s = ('getgenv().farmDifficulty=%q;getgenv().farmAutoHop=%s;getgenv().farmAutoExecute=%s;loadstring(game:HttpGet("%s"))()'):format(
         tostring(difficulty),
         tostring(autoHop),
@@ -37,6 +54,7 @@ task.spawn(function()
 end)
 
 local function serverHop()
+    if getgenv().farmForceStopped then return end
     local TeleportService = game:GetService("TeleportService")
     local HttpService     = game:GetService("HttpService")
     local PlaceId         = game.PlaceId
@@ -68,6 +86,7 @@ if game.PlaceId == LOBBY_ID then
     local hrp = char:WaitForChild("HumanoidRootPart", 15)
 
     while task.wait(1) do
+        if getgenv().farmForceStopped then break end
         local foundPortal = false
 
         for _, v in ipairs(workspace:GetChildren()) do
@@ -153,6 +172,7 @@ elseif game.PlaceId == DUNGEON_ID then
             pcall(function() remotes.VDT_CutsceneComplete:FireServer() end)
         end
         while task.wait(1) do
+            if getgenv().farmForceStopped then break end
             pcall(function()
                 game.ReplicatedStorage.VerdantRemotes:WaitForChild("VDT_CutsceneSkip", 1):FireServer()
                 game.ReplicatedStorage.VerdantRemotes:WaitForChild("VDT_CutsceneVoteSkip", 1):FireServer()
@@ -172,6 +192,7 @@ elseif game.PlaceId == DUNGEON_ID then
 
     if chestFolder then
         for _, chest in ipairs(chestFolder:GetChildren()) do
+            if getgenv().farmForceStopped then break end
             pcall(function()
                 local prompt = nil
                 for _ = 1, 10 do
