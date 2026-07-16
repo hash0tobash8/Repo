@@ -81,18 +81,27 @@ if game.PlaceId == LOBBY_ID then
 
                 if isEmpty then
                     local touchPart = v:FindFirstChild("Touch")
-                    if touchPart and touchPart:FindFirstChild("TouchInterest") and hrp then
+                    if touchPart and hrp then
                         foundPortal = true
-                        firetouchinterest(hrp, touchPart, 0)
-                        task.wait(0.3)
+                      
+                        hrp.CFrame = touchPart.CFrame + Vector3.new(0, 3, 0)
+                        task.wait(0.5)
+                        
+                       
+                        if touchPart:FindFirstChild("TouchInterest") then
+                            firetouchinterest(hrp, touchPart, 0)
+                        end
+                        
+                        task.wait(0.5)
                         pcall(function()
                             game.ReplicatedStorage.VerdantRemotes["VDT_Portal.CreateSetup"]:FireServer({
                                 ["Difficulty"] = difficulty,
                                 ["MaxPlayers"] = 1
                             })
                         end)
-                        task.wait(0.1)
-                        firetouchinterest(hrp, touchPart, 1)
+                        
+                       
+                        task.wait(1)
                         break
                     end
                 end
