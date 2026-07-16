@@ -154,7 +154,8 @@ elseif game.PlaceId == DUNGEON_ID then
         end
     end)
 
-    task.wait(6) 
+    task.wait(0.3)
+    task.wait(1)
 
     local chestFolder = workspace:FindFirstChild("Scripted")
         and workspace.Scripted:FindFirstChild("Chests")
