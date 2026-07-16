@@ -160,8 +160,12 @@ elseif game.PlaceId == DUNGEON_ID then
         end
     end)
 
-    task.wait(0.3)
-    task.wait(1)
+    
+    local waterCheck = workspace:WaitForChild("Water", 8)
+    if not waterCheck then
+        if autoHop then serverHop() end
+        return
+    end
 
     local chestFolder = workspace:FindFirstChild("Scripted")
         and workspace.Scripted:FindFirstChild("Chests")
@@ -176,9 +180,9 @@ elseif game.PlaceId == DUNGEON_ID then
                     task.wait(0.2)
                 end
                 if prompt and prompt.Enabled then
-                    local pivotCF = chest:IsA("Model") and chest:GetPivot() or chest.CFrame
-                    root.CFrame = pivotCF + Vector3.new(0, 2, 0)
-                    task.wait(0.15)
+                local pivotCF = chest:IsA("Model") and chest:GetPivot() or chest.CFrame
+                root.CFrame = pivotCF + Vector3.new(0, 2, 0)
+                task.wait(0.15)
                     fireproximityprompt(prompt)
                     task.wait(0.2)
                 end
@@ -201,7 +205,7 @@ elseif game.PlaceId == DUNGEON_ID then
     pcall(function()
         game.ReplicatedStorage.VerdantRemotes.VDT_ReturnToLobby:FireServer()
     end)
-
+    
     task.wait(3)
 
     if autoHop then
