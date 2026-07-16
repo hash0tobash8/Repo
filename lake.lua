@@ -15,7 +15,12 @@ repeat task.wait(0.1) lp = Players.LocalPlayer until lp
 
 local function queueSelf()
     if not autoExecute then return end
-    local s = ('loadstring(game:HttpGet("%s"))()'):format(SCRIPT_URL)
+    local s = ('getgenv().farmDifficulty=%q;getgenv().farmAutoHop=%s;getgenv().farmAutoExecute=%s;loadstring(game:HttpGet("%s"))()'):format(
+        difficulty,
+        tostring(autoHop),
+        tostring(autoExecute),
+        SCRIPT_URL
+    )
     if syn and syn.queue_on_teleport then
         syn.queue_on_teleport(s)
     elseif queue_on_teleport then
@@ -139,7 +144,7 @@ elseif game.PlaceId == DUNGEON_ID then
     end)
 
     task.wait(0.3)
-    task.wait(1)
+    task.wait(3)
 
     local chestFolder = workspace:FindFirstChild("Scripted")
         and workspace.Scripted:FindFirstChild("Chests")
