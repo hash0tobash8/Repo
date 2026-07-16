@@ -147,9 +147,15 @@ elseif game.PlaceId == DUNGEON_ID then
     end
 
     task.spawn(function()
+        local remotes = game.ReplicatedStorage:WaitForChild("VerdantRemotes", 5)
+        if remotes then
+            pcall(function() remotes.VDT_CharacterReady:FireServer() end)
+            pcall(function() remotes.VDT_CutsceneComplete:FireServer() end)
+        end
         while task.wait(1) do
             pcall(function()
                 game.ReplicatedStorage.VerdantRemotes:WaitForChild("VDT_CutsceneSkip", 1):FireServer()
+                game.ReplicatedStorage.VerdantRemotes:WaitForChild("VDT_CutsceneVoteSkip", 1):FireServer()
             end)
         end
     end)
